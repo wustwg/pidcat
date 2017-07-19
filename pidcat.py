@@ -263,10 +263,7 @@ while True:
   except KeyboardInterrupt:
     break
   if len(line) == 0:
-    if args.is_huawei_device:
-      continue
-    else:
-      break
+    break
 
   pid_match = PID_LINE.match(line)
   if pid_match is not None:
@@ -282,7 +279,10 @@ while adb.poll() is None:
   except KeyboardInterrupt:
     break
   if len(line) == 0:
-    break
+    if args.is_huawei_device:
+      continue
+    else:
+      break
 
   bug_line = BUG_LINE.match(line)
   if bug_line is not None:
