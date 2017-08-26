@@ -38,6 +38,8 @@ parser.add_argument('-l', '--min-level', dest='min_level', type=str, choices=LOG
 parser.add_argument('--color-gc', dest='color_gc', action='store_true', help='Color garbage collection')
 parser.add_argument('--always-display-tags', dest='always_tags', action='store_true',help='Always display the tag name')
 parser.add_argument('--current', dest='current_app', action='store_true',help='Filter logcat by current running app')
+parser.add_argument('--hw', dest='is_huawei_device', action='store_true',help='Huawei device')
+parser.add_argument('--pid', dest='show_pid', action='store_true',help='Show PID')
 parser.add_argument('-s', '--serial', dest='device_serial', help='Device serial number (adb -s option)')
 parser.add_argument('-d', '--device', dest='use_device', action='store_true', help='Use first device for log input (adb -d option)')
 parser.add_argument('-e', '--emulator', dest='use_emulator', action='store_true', help='Use first emulator for log input (adb -e option)')
@@ -174,6 +176,7 @@ PID_DEATH = re.compile(r'^Process ([a-zA-Z0-9._:]+) \(pid (\d+)\) has died.?$')
 LOG_LINE  = re.compile(r'^([A-Z])/(.+?)\( *(\d+)\): (.*?)$')
 BUG_LINE  = re.compile(r'.*nativeGetEnabledTags.*')
 BACKTRACE_LINE = re.compile(r'^#(.*?)pc\s(.*?)$')
+PID_LOG_LINE  = re.compile(r'^[A-Z]/.+?\( *(\d+)\): .*?$')
 
 adb_command = base_adb_command[:]
 adb_command.append('logcat')
@@ -276,7 +279,10 @@ while adb.poll() is None:
   except KeyboardInterrupt:
     break
   if len(line) == 0:
-    break
+    if args.is_huawei_device:
+      continue
+    else:
+      break
 
   bug_line = BUG_LINE.match(line)
   if bug_line is not None:
@@ -350,6 +356,10 @@ while adb.poll() is None:
   else:
     linebuf += ' ' + level + ' '
   linebuf += ' '
+
+  if args.show_pid:
+    pid = PID_LOG_LINE.match(line)
+    linebuf += pid.groups()[0] + ': '
 
   # format tag message using rules
   for matcher in RULES:
