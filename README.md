@@ -19,6 +19,10 @@ Here is an example of the output when running for the Google Plus app:
 
 ![Example screen](screen.png)
 
+和主线区别：
+华为手机和其他手机不同
+--hw 表示当前设备是华为设备，启用特殊的处理
+--pid 表示显示 pid
 
 Install
 -------
